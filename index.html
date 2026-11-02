@@ -3,25 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ СтудТрекер PRO</title>
+    <title>СтудТрекер PRO</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Фоновые интерактивные элементы для эффекта размытия Liquid Glass -->
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
 
     <header class="glass-element">
         <div class="container header-container">
-            <div class="logo">🎓 СтудТрекер <span>PRO</span></div>
-            <button id="open-settings-btn" class="btn btn-icon">⚙️ Настройки</button>
+            <div class="logo">СтудТрекер <span>PRO</span></div>
+            <button id="open-settings-btn" class="btn btn-icon desktop-only-btn">⚙️ Настройки</button>
         </div>
     </header>
 
     <main class="container">
-        <!-- Левая колонка: Форма -->
-        <section class="form-section glass-element">
+        <section id="form-section" class="form-section glass-element">
             <h2 id="form-title">Новая дисциплина</h2>
             <form id="tracker-form">
                 <input type="hidden" id="edit-id">
@@ -50,14 +48,19 @@
 
                 <div class="form-row" id="target-inputs-row">
                     <div class="form-group">
-                        <label for="total-tasks">Цель (всего)</label>
-                        <input type="number" id="total-tasks" min="1" value="10">
+                        <label for="total-tasks">Цель (макс. 25)</label>
+                        <input type="number" id="total-tasks" min="1" max="25" value="10">
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="done-tasks">Выполнено сейчас</label>
-                    <input type="number" id="done-tasks" min="0" value="0" required>
+                    <input type="number" id="done-tasks" min="0" max="25" value="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="deadline-date">Дедлайн (дата и время)</label>
+                    <input type="datetime-local" id="deadline-date">
                 </div>
 
                 <div class="form-buttons">
@@ -67,15 +70,27 @@
             </form>
         </section>
 
-        <!-- Правая колонка: Список дисциплин -->
         <section class="list-section">
-            <div id="subjects-list" class="grid">
-                <!-- Карточки рендерятся из JS -->
-            </div>
+            <div id="subjects-list" class="grid"></div>
         </section>
     </main>
 
-    <!-- Панель настроек (Кастомизатор) -->
+    <div id="modal-form-overlay" class="modal-overlay hidden">
+        <div class="modal-content glass-element">
+            <div class="modal-header">
+                <h3 id="modal-form-title">Новая дисциплина</h3>
+                <button id="close-modal-btn" class="btn-close">&times;</button>
+            </div>
+            <div id="modal-form-container"></div>
+        </div>
+    </div>
+
+    <div class="mobile-dock glass-element">
+        <button id="dock-home-btn" class="dock-item active">📋 Список</button>
+        <button id="dock-add-btn" class="dock-item dock-plus">➕</button>
+        <button id="dock-settings-btn" class="dock-item">⚙️ Настройки</button>
+    </div>
+
     <div id="settings-sidebar" class="sidebar hidden">
         <div class="sidebar-overlay" id="sidebar-close-overlay"></div>
         <div class="sidebar-content glass-element">
@@ -84,13 +99,11 @@
                 <button id="close-settings-btn" class="btn-close">&times;</button>
             </div>
 
-            <!-- Табы переключения подпунктов -->
             <div class="settings-tabs">
                 <button class="tab-btn active" data-tab="tab-counters">📊 Отображение</button>
                 <button class="tab-btn" data-tab="tab-theme">🎨 Тема страницы</button>
             </div>
 
-            <!-- ПОДПУНКТ 1: Настройка счетчиков -->
             <div id="tab-counters" class="tab-content active">
                 <div class="setting-item">
                     <label for="view-style-select">Стиль отображения прогресса:</label>
@@ -98,22 +111,66 @@
                         <option value="counter">Цифровой счетчик [10 из 15]</option>
                         <option value="cubes">Интерактивные кубики (кликом)</option>
                         <option value="progress-ring">Круговой прогресс-бар</option>
-                        <option value="minimal">Минималистичный (только %)</option>
                     </select>
                 </div>
-                <p class="setting-hint">Стиль «Кубики» идеально подходит для поштучного отслеживания лабораторных работ.</p>
+
+                <div class="setting-item">
+                    <label for="font-family-select">Основной шрифт:</label>
+                    <select id="font-family-select">
+                        <option value="Montserrat">Montserrat (Современный жирный)</option>
+                        <option value="SF Pro Display">SF Pro / System (Apple Style)</option>
+                        <option value="Trebuchet MS">Trebuchet MS (Яркий и четкий)</option>
+                        <option value="Impact">Impact (Ультра-жирный)</option>
+                    </select>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-rgba); margin: 20px 0;">
+
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="show-deadlines-checkbox" checked>
+                        Отображать дедлайны
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label for="deadline-format-select">Формат отображения дедлайна:</label>
+                    <select id="deadline-format-select">
+                        <option value="dms">Точный отсчёт (Дни, часы, мин, сек)</option>
+                        <option value="dm">Стандартный (Дни, часы, мин)</option>
+                        <option value="d">Краткий (Только дни)</option>
+                    </select>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-rgba); margin: 20px 0;">
+
+                <div class="setting-item">
+                    <button id="clear-all-btn" class="btn btn-accent-danger" style="width: 100%;">🗑️ Очистить все данные</button>
+                </div>
             </div>
 
-            <!-- ПОДПУНКТ 2: Настройка темы (Серые оттенки, границы, размытие) -->
             <div id="tab-theme" class="tab-content">
                 <div class="setting-item">
-                    <label for="theme-bg">Фон страницы:</label>
-                    <select id="theme-bg">
-                        <option value="#121214">Глубокий темно-серый</option>
-                        <option value="#1e1e24">Графитовый</option>
-                        <option value="#2d2d30">Светло-серый матовый</option>
-                        <option value="#0a0a0a">Абсолютно черный</option>
+                    <label for="theme-preset">Готовые палитры:</label>
+                    <select id="theme-preset">
+                        <option value="custom">Своя настройка</option>
+                        <option value="blue-neon">Синий Неон (Deep Blue)</option>
+                        <option value="cyber-cyan">Кибер Бирюза (Cyan Glow)</option>
+                        <option value="purple-neon">Неоновый Ультрафиолет (Purple Neon)</option>
+                        <option value="burgundy">Темный Бургунди (Deep Burgundy)</option>
+                        <option value="graphite">Темный Графит (Space Gray)</option>
+                        <option value="dark-gray">Глубокий темно-серый (Dark Classic)</option>
+                        <option value="matte-gray">Светло-серый матовый (Matte Gray)</option>
+                        <option value="pitch-black">Абсолютно черный (Pitch Black)</option>
+                        <option value="light-silver">Светлое Серебро (Silver Light)</option>
+                        <option value="starlight">Сияющая Звезда (Starlight)</option>
+                        <option value="alpine-green">Альпийский Светлый (Alpine Light)</option>
                     </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="theme-bg">Фон страницы:</label>
+                    <input type="color" id="theme-bg" value="#121214">
                 </div>
 
                 <div class="setting-item">
@@ -130,7 +187,7 @@
                 </div>
 
                 <div class="setting-item">
-                    <label for="theme-border-opacity">Яркость/Прозрачность границ:</label>
+                    <label for="theme-border-opacity">Прозрачность границ:</label>
                     <div class="range-container">
                         <input type="range" id="theme-border-opacity" min="5" max="50" value="15">
                         <span id="border-val">15%</span>
