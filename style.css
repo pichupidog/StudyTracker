@@ -1,0 +1,381 @@
+/* Базовые переменные для динамической кастомизации */
+:root {
+    --bg-page: #121214;
+    --text-color: #ffffff;
+    --glass-blur: 16px;
+    --border-rgba: rgba(255, 255, 255, 0.15);
+    
+    /* Оттенки серого */
+    --gray-dark: rgba(30, 30, 35, 0.6);
+    --gray-light: rgba(255, 255, 255, 0.06);
+    --accent: #a0a0a5;
+    --success: #2ecc71;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+body {
+    background-color: var(--bg-page);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding-bottom: 60px;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Декоративное свечение под стеклом */
+.bg-glow {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(120,120,130,0.15) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    z-index: -1;
+    pointer-events: none;
+    animation: floating 8s infinite alternate ease-in-out;
+}
+.bg-glow-1 { top: 10%; left: 15%; }
+.bg-glow-2 { bottom: 20%; right: 10%; animation-delay: -4s; }
+
+@keyframes floating {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-30px) scale(1.1); }
+}
+
+.container {
+    width: 92%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Спецификация макроса Liquid Glass */
+.glass-element {
+    background: var(--gray-light);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--border-rgba);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Шапка сайта */
+header {
+    padding: 20px 0;
+    margin-bottom: 40px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0 0 16px 16px;
+}
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.logo span {
+    color: var(--accent);
+    font-weight: 300;
+}
+
+/* Сетка контента */
+main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+@media (min-width: 850px) {
+    main { grid-template-columns: 380px 1fr; }
+}
+
+/* Блок Формы */
+.form-section {
+    padding: 30px;
+    height: fit-content;
+}
+.form-group {
+    margin-bottom: 18px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+}
+input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-rgba);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+input:focus, select:focus {
+    outline: none;
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.1);
+    vertical-align: middle;
+}
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+.form-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+/* Элегантные кнопки */
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+.btn-icon {
+    background: var(--gray-light);
+    border: 1px solid var(--border-rgba);
+    color: var(--text-color);
+}
+.btn-icon:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+}
+.btn-success { background: #ffffff; color: #121214; }
+.btn-success:hover { background: #e0e0e5; transform: translateY(-2px); }
+.btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-secondary:hover { background: rgba(255,255,255,0.18); }
+
+/* Карточки и Сетка */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+.card {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card-type {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 6px;
+}
+.card-title {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Стили различных счетчиков (Представления) */
+.display-wrapper {
+    margin-bottom: 25px;
+    min-height: 45px;
+}
+
+/* Вариант 1: Текстовый счетчик */
+.counter-text {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Вариант 2: Кубики */
+.cubes-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.cube {
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-rgba);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.cube.active {
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+.cube:hover {
+    transform: scale(1.15);
+}
+
+/* Вариант 3: Круговой прогресс */
+.ring-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.progress-ring {
+    transform: rotate(-90deg);
+}
+.progress-ring__circle {
+    transition: stroke-dashoffset 0.35s;
+    transform-origin: 50% 50%;
+}
+
+/* Управление счетчиком кликами по карточке (+ / -) */
+.quick-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-rgba);
+    color: #fff;
+    border-radius: 4px;
+}
+.btn-sm:hover { background: rgba(255,255,255,0.15); }
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--border-rgba);
+    padding-top: 15px;
+}
+.card-actions .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+/* Боковое меню Настроек */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    transition: opacity 0.3s ease;
+}
+.sidebar-overlay {
+    position: absolute;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.4);
+}
+.sidebar-content {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    border-radius: 16px 0 0 16px;
+    border-right: none;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    transform: translateX(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sidebar.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.sidebar.hidden .sidebar-content {
+    transform: translateX(100%);
+}
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.btn-close {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* Табы подпунктов */
+.settings-tabs {
+    display: flex;
+    gap: 5px;
+    background: rgba(0,0,0,0.2);
+    padding: 4px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 6px;
+}
+.tab-btn.active {
+    background: var(--gray-light);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.setting-item {
+    margin-bottom: 20px;
+}
+.setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+.range-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.setting-hint {
+    font-size: 12px;
+    color: var(--accent);
+    line-height: 1.4;
+}
+
+.hidden { display: none !important; }

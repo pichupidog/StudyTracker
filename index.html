@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ СтудТрекер PRO</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Фоновые интерактивные элементы для эффекта размытия Liquid Glass -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <header class="glass-element">
+        <div class="container header-container">
+            <div class="logo">🎓 СтудТрекер <span>PRO</span></div>
+            <button id="open-settings-btn" class="btn btn-icon">⚙️ Настройки</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Левая колонка: Форма -->
+        <section class="form-section glass-element">
+            <h2 id="form-title">Новая дисциплина</h2>
+            <form id="tracker-form">
+                <input type="hidden" id="edit-id">
+                
+                <div class="form-group">
+                    <label for="subject-name">Название предмета</label>
+                    <input type="text" id="subject-name" placeholder="Например: Архитектура ЭВМ" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject-type">Вид дисциплины</label>
+                    <select id="subject-type">
+                        <option value="Лабораторные работы">🔬 Лабораторные работы</option>
+                        <option value="Практические занятия">📝 Практические занятия</option>
+                        <option value="Курсовой проект">📐 Курсовой проект</option>
+                        <option value="Лекции">📚 Лекции</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="has-target-checkbox" checked>
+                        Указать цель (количество работ)
+                    </label>
+                </div>
+
+                <div class="form-row" id="target-inputs-row">
+                    <div class="form-group">
+                        <label for="total-tasks">Цель (всего)</label>
+                        <input type="number" id="total-tasks" min="1" value="10">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="done-tasks">Выполнено сейчас</label>
+                    <input type="number" id="done-tasks" min="0" value="0" required>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" id="submit-btn" class="btn btn-success">Сохранить</button>
+                    <button type="button" id="cancel-btn" class="btn btn-secondary hidden">Отмена</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Правая колонка: Список дисциплин -->
+        <section class="list-section">
+            <div id="subjects-list" class="grid">
+                <!-- Карточки рендерятся из JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Панель настроек (Кастомизатор) -->
+    <div id="settings-sidebar" class="sidebar hidden">
+        <div class="sidebar-overlay" id="sidebar-close-overlay"></div>
+        <div class="sidebar-content glass-element">
+            <div class="sidebar-header">
+                <h3>Настройки интерфейса</h3>
+                <button id="close-settings-btn" class="btn-close">&times;</button>
+            </div>
+
+            <!-- Табы переключения подпунктов -->
+            <div class="settings-tabs">
+                <button class="tab-btn active" data-tab="tab-counters">📊 Отображение</button>
+                <button class="tab-btn" data-tab="tab-theme">🎨 Тема страницы</button>
+            </div>
+
+            <!-- ПОДПУНКТ 1: Настройка счетчиков -->
+            <div id="tab-counters" class="tab-content active">
+                <div class="setting-item">
+                    <label for="view-style-select">Стиль отображения прогресса:</label>
+                    <select id="view-style-select">
+                        <option value="counter">Цифровой счетчик [10 из 15]</option>
+                        <option value="cubes">Интерактивные кубики (кликом)</option>
+                        <option value="progress-ring">Круговой прогресс-бар</option>
+                        <option value="minimal">Минималистичный (только %)</option>
+                    </select>
+                </div>
+                <p class="setting-hint">Стиль «Кубики» идеально подходит для поштучного отслеживания лабораторных работ.</p>
+            </div>
+
+            <!-- ПОДПУНКТ 2: Настройка темы (Серые оттенки, границы, размытие) -->
+            <div id="tab-theme" class="tab-content">
+                <div class="setting-item">
+                    <label for="theme-bg">Фон страницы:</label>
+                    <select id="theme-bg">
+                        <option value="#121214">Глубокий темно-серый</option>
+                        <option value="#1e1e24">Графитовый</option>
+                        <option value="#2d2d30">Светло-серый матовый</option>
+                        <option value="#0a0a0a">Абсолютно черный</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="theme-text-color">Цвет шрифта текста:</label>
+                    <input type="color" id="theme-text-color" value="#ffffff">
+                </div>
+
+                <div class="setting-item">
+                    <label for="theme-blur">Размытие Liquid Glass (Blur):</label>
+                    <div class="range-container">
+                        <input type="range" id="theme-blur" min="0" max="30" value="16">
+                        <span id="blur-val">16px</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <label for="theme-border-opacity">Яркость/Прозрачность границ:</label>
+                    <div class="range-container">
+                        <input type="range" id="theme-border-opacity" min="5" max="50" value="15">
+                        <span id="border-val">15%</span>
+                    </div>
+                </div>
+
+                <button id="reset-theme-btn" class="btn btn-secondary" style="width:100%; margin-top:15px;">Сбросить тему</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
