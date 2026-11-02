@@ -1,4 +1,3 @@
-// Безопасная инициализация Telegram Web App (чтобы не падало на ПК в обычном браузере)
 let tg = null;
 if (window.Telegram && window.Telegram.WebApp) {
     tg = window.Telegram.WebApp;
@@ -8,6 +7,8 @@ if (window.Telegram && window.Telegram.WebApp) {
         console.log("Telegram WebApp expand error:", e);
     }
 }
+
+const isInTelegram = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
 
 const THEME_PRESETS = {
     'blue-neon': { bg: '#060c1a', text: '#00f0ff' },
@@ -23,7 +24,7 @@ const THEME_PRESETS = {
     'alpine-green': { bg: '#eef5f0', text: '#1b3b22' }
 };
 
-let subjects = JSON.parse(localStorage.getItem('subjects_pro')) || [];
+let subjects = [];
 let appSettings = JSON.parse(localStorage.getItem('app_settings_pro')) || {
     viewStyle: 'cubes', 
     themePreset: 'graphite',
@@ -42,6 +43,7 @@ const hasTargetCheckbox = document.getElementById('has-target-checkbox');
 const targetInputsRow = document.getElementById('target-inputs-row');
 const totalTasksInput = document.getElementById('total-tasks');
 const doneTasksInput = document.getElementById('done-tasks');
+const deadlineInput = document.getElementById('deadline-date');
 const sidebar = document.getElementById('settings-sidebar');
 const formSection = document.getElementById('form-section');
 const modalOverlay = document.getElementById('modal-form-overlay');
@@ -49,12 +51,43 @@ const modalFormContainer = document.getElementById('modal-form-container');
 
 const MAX_LIMIT = 25;
 
+// Ограничение ввода года в поле даты (максимум 4 символа для года)
+deadlineInput.addEventListener('input', function() {
+    if (this.value) {
+        const parts = this.value.split('-');
+        if (parts[0] && parts[0].length > 4) {
+            parts[0] = parts[0].slice(0, 4);
+            this.value = parts.join('-');
+        }
+        // Дополнительная проверка на адекватность года (не больше 2099)
+        if (parseInt(parts[0]) > 2099) {
+            parts[0] = '2099';
+            this.value = parts.join('-');
+        }
+    }
+});
+
 totalTasksInput.addEventListener('input', function() {
     if (parseInt(this.value) > MAX_LIMIT) this.value = MAX_LIMIT;
+    validateDoneVsTotal();
 });
+
 doneTasksInput.addEventListener('input', function() {
     if (parseInt(this.value) > MAX_LIMIT) this.value = MAX_LIMIT;
+    validateDoneVsTotal();
 });
+
+// Проверка, чтобы выполненные работы не превышали цель
+function validateDoneVsTotal() {
+    const hasTarget = hasTargetCheckbox.checked;
+    if (hasTarget) {
+        const total = parseInt(totalTasksInput.value) || 0;
+        const done = parseInt(doneTasksInput.value) || 0;
+        if (done > total) {
+            doneTasksInput.value = total;
+        }
+    }
+}
 
 hasTargetCheckbox.addEventListener('change', function() {
     if (this.checked) {
@@ -65,7 +98,41 @@ hasTargetCheckbox.addEventListener('change', function() {
         totalTasksInput.required = false;
         totalTasksInput.value = '';
     }
+    validateDoneVsTotal();
 });
+
+// Гибридная загрузка данных
+function loadAppData(callback) {
+    if (isInTelegram) {
+        Telegram.WebApp.CloudStorage.getItem('subjects_pro', (err, value) => {
+            if (!err && value) {
+                try {
+                    subjects = JSON.parse(value);
+                } catch (e) {
+                    subjects = [];
+                }
+            } else {
+                subjects = [];
+            }
+            if (callback) callback();
+        });
+    } else {
+        subjects = JSON.parse(localStorage.getItem('subjects_pro')) || [];
+        if (callback) callback();
+    }
+}
+
+// Гибридное сохранение данных
+function saveAppData() {
+    const dataString = JSON.stringify(subjects);
+    if (isInTelegram) {
+        Telegram.WebApp.CloudStorage.setItem('subjects_pro', dataString, (err, saved) => {
+            if (err) console.log('Ошибка сохранения в облако ТГ:', err);
+        });
+    } else {
+        localStorage.setItem('subjects_pro', dataString);
+    }
+}
 
 document.getElementById('open-settings-btn').addEventListener('click', () => sidebar.classList.remove('hidden'));
 document.getElementById('dock-settings-btn').addEventListener('click', () => sidebar.classList.remove('hidden'));
@@ -297,7 +364,14 @@ function promptAddTarget(id) {
     let total = parseInt(target);
     if (total && total > 0) {
         if (total > MAX_LIMIT) total = MAX_LIMIT;
-        subjects = subjects.map(sub => sub.id === id ? { ...sub, total: total } : sub);
+        subjects = subjects.map(sub => {
+            if (sub.id === id) {
+                let done = sub.done;
+                if (done > total) done = total; // Защита от превышения
+                return { ...sub, total: total, done: done };
+            }
+            return sub;
+        });
         saveAndRefresh();
     }
 }
@@ -307,14 +381,30 @@ form.addEventListener('submit', (e) => {
     const id = document.getElementById('edit-id').value;
     const name = document.getElementById('subject-name').value;
     const type = document.getElementById('subject-type').value;
-    let done = parseInt(doneTasksInput.value);
-    const deadline = document.getElementById('deadline-date').value;
+    let done = parseInt(doneTasksInput.value) || 0;
+    const deadline = deadlineInput.value;
     
     const hasTarget = hasTargetCheckbox.checked;
     let total = hasTarget ? parseInt(totalTasksInput.value) : null;
 
     if (total && total > MAX_LIMIT) total = MAX_LIMIT;
     if (done > MAX_LIMIT) done = MAX_LIMIT;
+
+    // Проверка: выполненные работы не могут быть больше цели
+    if (hasTarget && done > total) {
+        alert('Количество выполненных работ не может превышать общую цель!');
+        return;
+    }
+
+    // Проверка: дедлайн не может быть на прошедшую дату
+    if (deadline) {
+        const deadlineTime = new Date(deadline).getTime();
+        const nowTime = new Date().getTime();
+        if (deadlineTime < nowTime) {
+            alert('Нельзя установить дедлайн на уже прошедшую дату и время!');
+            return;
+        }
+    }
 
     if (id) {
         subjects = subjects.map(sub => sub.id === id ? { id, name, type, total, done, deadline } : sub);
@@ -340,7 +430,7 @@ function editSubject(id) {
     document.getElementById('subject-name').value = sub.name;
     document.getElementById('subject-type').value = sub.type;
     document.getElementById('done-tasks').value = sub.done;
-    document.getElementById('deadline-date').value = sub.deadline || '';
+    deadlineInput.value = sub.deadline || '';
     
     if (sub.total) {
         hasTargetCheckbox.checked = true;
@@ -389,7 +479,7 @@ document.getElementById('cancel-btn').addEventListener('click', () => {
 });
 
 function saveAndRefresh() {
-    localStorage.setItem('subjects_pro', JSON.stringify(subjects));
+    saveAppData();
     renderSubjects();
 }
 
@@ -474,4 +564,8 @@ function updateSettings() {
 
 handleResize();
 applyThemeSettings();
-renderSubjects();
+
+// Старт загрузки данных в зависимости от платформы (ПК или Telegram)
+loadAppData(() => {
+    renderSubjects();
+});

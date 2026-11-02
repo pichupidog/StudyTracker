@@ -8,7 +8,7 @@
     --border-rgba: rgba(255, 255, 255, 0.15);
     
     --gray-light: rgba(255, 255, 255, 0.08);
-    --input-bg: rgba(0, 0, 0, 0.2);
+    --input-bg: rgba(0, 0, 0, 0.25);
     --accent: #a0a0a5;
     --success: #2ecc71;
 }
@@ -111,22 +111,33 @@ main {
     letter-spacing: 1px;
     color: var(--accent);
 }
+
+/* Красивое оформление полей ввода и селектов без резких белых плашек */
 input[type="text"], input[type="number"], input[type="datetime-local"], select {
     width: 100%;
     padding: 12px 16px;
     background: var(--input-bg);
     border: 1px solid var(--border-rgba);
-    border-radius: 8px;
+    border-radius: 10px;
     color: var(--text-color);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
+    outline: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-input:focus, select:focus {
-    outline: none;
-    border-color: var(--text-color);
-    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+
+/* Стилизация выпадающих списков (опций внутри селекта) для темных и светлых тем */
+select option {
+    background-color: #1e1e24;
+    color: #ffffff;
+    padding: 10px;
 }
+
+input:focus, select:focus {
+    border-color: var(--text-color);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+}
+
 input[type="checkbox"] {
     margin-right: 8px;
     transform: scale(1.1);
@@ -146,7 +157,7 @@ input[type="checkbox"] {
 .btn {
     padding: 12px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 700;
     font-size: 14px;
@@ -158,13 +169,13 @@ input[type="checkbox"] {
     color: var(--text-color);
 }
 .btn-icon:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
 }
 .btn-success { background: var(--text-color); color: var(--bg-page); }
 .btn-success:hover { opacity: 0.9; transform: translateY(-2px); }
 .btn-secondary { background: var(--gray-light); color: var(--text-color); border: 1px solid var(--border-rgba); }
-.btn-secondary:hover { background: rgba(255,255,255,0.18); }
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.18); }
 
 .btn-accent-danger {
     background: linear-gradient(135deg, #ff416c, #ff4b2b);
@@ -291,10 +302,10 @@ input[type="checkbox"] {
     background: var(--gray-light);
     border: 1px solid var(--border-rgba);
     color: var(--text-color);
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
 }
-.btn-sm:hover { background: rgba(255,255,255,0.15); }
+.btn-sm:hover { background: rgba(255, 255, 255, 0.15); }
 
 .card-actions {
     display: flex;
@@ -307,7 +318,7 @@ input[type="checkbox"] {
     font-size: 12px;
 }
 
-/* Мобильные адаптации */
+/* Мобильный Dock-бар */
 .mobile-dock {
     display: none;
     position: fixed;
@@ -348,7 +359,7 @@ input[type="checkbox"] {
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     padding: 0;
 }
 .dock-plus:hover {
@@ -361,7 +372,7 @@ input[type="checkbox"] {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 1050;
     display: flex;
     align-items: center;
@@ -388,7 +399,6 @@ input[type="checkbox"] {
     body {
         padding-bottom: 100px;
     }
-    /* Скрываем кнопку настроек из хедера и центрируем логотип */
     .header-container {
         justify-content: center;
     }
@@ -416,8 +426,8 @@ input[type="checkbox"] {
 }
 .sidebar-overlay {
     position: absolute;
-    top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.4);
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
 }
 .sidebar-content {
     position: relative;
@@ -460,7 +470,7 @@ input[type="checkbox"] {
     gap: 5px;
     background: var(--input-bg);
     padding: 4px;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 25px;
 }
 .tab-btn {
@@ -472,12 +482,12 @@ input[type="checkbox"] {
     cursor: pointer;
     font-weight: 700;
     font-size: 13px;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 .tab-btn.active {
     background: var(--gray-light);
     color: var(--text-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
