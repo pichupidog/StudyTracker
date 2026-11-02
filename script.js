@@ -1,5 +1,13 @@
-const tg = window.Telegram.WebApp;
-tg.expand(); // Разворачивает приложение на полный экран
+// Безопасная инициализация Telegram Web App (чтобы не падало на ПК в обычном браузере)
+let tg = null;
+if (window.Telegram && window.Telegram.WebApp) {
+    tg = window.Telegram.WebApp;
+    try {
+        tg.expand();
+    } catch (e) {
+        console.log("Telegram WebApp expand error:", e);
+    }
+}
 
 const THEME_PRESETS = {
     'blue-neon': { bg: '#060c1a', text: '#00f0ff' },
@@ -73,20 +81,25 @@ document.getElementById('dock-home-btn').addEventListener('click', () => {
 });
 
 document.getElementById('dock-add-btn').addEventListener('click', () => {
+    document.getElementById('dock-add-btn').classList.add('active');
+    document.getElementById('dock-home-btn').classList.remove('active');
     resetForm();
     openModal();
 });
 
 function openModal() {
     if (window.innerWidth < 850) {
-        modalFormContainer.appendChild(form);
+        if (form.parentElement !== modalFormContainer) {
+            modalFormContainer.appendChild(form);
+        }
         modalOverlay.classList.remove('hidden');
     }
 }
 
 function closeModal() {
-    if (window.innerWidth < 850) {
-        modalOverlay.classList.add('hidden');
+    modalOverlay.classList.add('hidden');
+    if (window.innerWidth >= 850 && form.parentElement !== formSection) {
+        formSection.appendChild(form);
     }
 }
 
@@ -312,6 +325,9 @@ form.addEventListener('submit', (e) => {
     saveAndRefresh();
     resetForm();
     closeModal();
+
+    document.getElementById('dock-home-btn').classList.add('active');
+    document.getElementById('dock-add-btn').classList.remove('active');
 });
 
 function editSubject(id) {
@@ -364,9 +380,12 @@ function resetForm() {
     hasTargetCheckbox.checked = true;
     targetInputsRow.classList.remove('hidden');
 }
+
 document.getElementById('cancel-btn').addEventListener('click', () => {
     resetForm();
     closeModal();
+    document.getElementById('dock-home-btn').classList.add('active');
+    document.getElementById('dock-add-btn').classList.remove('active');
 });
 
 function saveAndRefresh() {
