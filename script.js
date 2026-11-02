@@ -1,3 +1,6 @@
+const tg = window.Telegram.WebApp;
+tg.expand(); // Разворачивает приложение на полный экран
+
 const THEME_PRESETS = {
     'blue-neon': { bg: '#060c1a', text: '#00f0ff' },
     'cyber-cyan': { bg: '#081b24', text: '#38ef7d' },
