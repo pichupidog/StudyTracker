@@ -51,7 +51,7 @@ const modalFormContainer = document.getElementById('modal-form-container');
 
 const MAX_LIMIT = 25;
 
-// Ограничение ввода года в поле даты (максимум 4 символа для года)
+// Ограничение ввода года в поле даты (максимум 4 символа для года, не более 2099)
 deadlineInput.addEventListener('input', function() {
     if (this.value) {
         const parts = this.value.split('-');
@@ -59,7 +59,6 @@ deadlineInput.addEventListener('input', function() {
             parts[0] = parts[0].slice(0, 4);
             this.value = parts.join('-');
         }
-        // Дополнительная проверка на адекватность года (не больше 2099)
         if (parseInt(parts[0]) > 2099) {
             parts[0] = '2099';
             this.value = parts.join('-');
@@ -101,7 +100,7 @@ hasTargetCheckbox.addEventListener('change', function() {
     validateDoneVsTotal();
 });
 
-// Гибридная загрузка данных
+// Гибридная загрузка данных (Локально для ПК / CloudStorage для Telegram)
 function loadAppData(callback) {
     if (isInTelegram) {
         Telegram.WebApp.CloudStorage.getItem('subjects_pro', (err, value) => {
@@ -134,25 +133,46 @@ function saveAppData() {
     }
 }
 
-document.getElementById('open-settings-btn').addEventListener('click', () => sidebar.classList.remove('hidden'));
-document.getElementById('dock-settings-btn').addEventListener('click', () => sidebar.classList.remove('hidden'));
+// Управление навигацией и модальными окнами
+document.getElementById('open-settings-btn').addEventListener('click', () => {
+    closeModal();
+    sidebar.classList.remove('hidden');
+});
+document.getElementById('dock-settings-btn').addEventListener('click', () => {
+    closeModal();
+    sidebar.classList.remove('hidden');
+});
 document.getElementById('close-settings-btn').addEventListener('click', () => sidebar.classList.add('hidden'));
 document.getElementById('sidebar-close-overlay').addEventListener('click', () => sidebar.classList.add('hidden'));
-document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+document.getElementById('close-modal-btn').addEventListener('click', () => {
+    closeModal();
+    setHomeActive();
+});
 
 document.getElementById('dock-home-btn').addEventListener('click', () => {
-    document.getElementById('dock-home-btn').classList.add('active');
-    document.getElementById('dock-add-btn').classList.remove('active');
+    setHomeActive();
     closeModal();
+    sidebar.classList.add('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 document.getElementById('dock-add-btn').addEventListener('click', () => {
-    document.getElementById('dock-add-btn').classList.add('active');
-    document.getElementById('dock-home-btn').classList.remove('active');
+    setAddActive();
+    sidebar.classList.add('hidden');
     resetForm();
     openModal();
 });
+
+// Вспомогательные функции для подсветки кнопок в док-баре
+function setHomeActive() {
+    document.getElementById('dock-home-btn').classList.add('active');
+    document.getElementById('dock-add-btn').classList.remove('active');
+}
+
+function setAddActive() {
+    document.getElementById('dock-add-btn').classList.add('active');
+    document.getElementById('dock-home-btn').classList.remove('active');
+}
 
 function openModal() {
     if (window.innerWidth < 850) {
@@ -190,6 +210,31 @@ document.getElementById('clear-all-btn').addEventListener('click', () => {
             alert('Все данные успешно очищены.');
             sidebar.classList.add('hidden');
         }
+    }
+});
+
+// Отправка отзыва / идеи напрямую через Telegram WebApp SDK
+document.getElementById('send-feedback-btn').addEventListener('click', () => {
+    const feedbackInput = document.getElementById('feedback-text');
+    const feedbackText = feedbackInput.value.trim();
+
+    if (!feedbackText) {
+        alert('Пожалуйста, напишите текст вашей идеи или отзыва!');
+        return;
+    }
+
+    if (tg && tg.sendData) {
+        const payload = {
+            type: 'user_feedback',
+            text: feedbackText,
+            timestamp: new Date().toISOString()
+        };
+
+        tg.sendData(JSON.stringify(payload));
+        feedbackInput.value = '';
+        sidebar.classList.add('hidden');
+    } else {
+        alert('Отправка отзывов напрямую доступна при открытии приложения через Telegram!');
     }
 });
 
@@ -367,7 +412,7 @@ function promptAddTarget(id) {
         subjects = subjects.map(sub => {
             if (sub.id === id) {
                 let done = sub.done;
-                if (done > total) done = total; // Защита от превышения
+                if (done > total) done = total;
                 return { ...sub, total: total, done: done };
             }
             return sub;
@@ -390,13 +435,11 @@ form.addEventListener('submit', (e) => {
     if (total && total > MAX_LIMIT) total = MAX_LIMIT;
     if (done > MAX_LIMIT) done = MAX_LIMIT;
 
-    // Проверка: выполненные работы не могут быть больше цели
     if (hasTarget && done > total) {
         alert('Количество выполненных работ не может превышать общую цель!');
         return;
     }
 
-    // Проверка: дедлайн не может быть на прошедшую дату
     if (deadline) {
         const deadlineTime = new Date(deadline).getTime();
         const nowTime = new Date().getTime();
@@ -415,9 +458,7 @@ form.addEventListener('submit', (e) => {
     saveAndRefresh();
     resetForm();
     closeModal();
-
-    document.getElementById('dock-home-btn').classList.add('active');
-    document.getElementById('dock-add-btn').classList.remove('active');
+    setHomeActive();
 });
 
 function editSubject(id) {
@@ -446,6 +487,7 @@ function editSubject(id) {
     document.getElementById('submit-btn').innerText = 'Обновить';
     
     if (window.innerWidth < 850) {
+        setAddActive();
         openModal();
     } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -474,8 +516,7 @@ function resetForm() {
 document.getElementById('cancel-btn').addEventListener('click', () => {
     resetForm();
     closeModal();
-    document.getElementById('dock-home-btn').classList.add('active');
-    document.getElementById('dock-add-btn').classList.remove('active');
+    setHomeActive();
 });
 
 function saveAndRefresh() {
@@ -565,7 +606,6 @@ function updateSettings() {
 handleResize();
 applyThemeSettings();
 
-// Старт загрузки данных в зависимости от платформы (ПК или Telegram)
 loadAppData(() => {
     renderSubjects();
 });

@@ -3,199 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>СтудТрекер PRO</title>
+    <title>Student Study Tracker PRO</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/webapp.js"></script>
 </head>
 <body>
 
+    <!-- Фоновые световые акценты (Liquid Glass) -->
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
 
-    <header class="glass-element">
-        <div class="container header-container">
-            <div class="logo">СтудТрекер <span>PRO</span></div>
-            <button id="open-settings-btn" class="btn btn-icon desktop-only-btn">⚙️ Настройки</button>
-        </div>
-    </header>
+    <div class="container">
+        <!-- Шапка приложения -->
+        <header>
+            <div class="header-container">
+                <div class="logo">StudyTracker <span>PRO</span></div>
+                <button id="open-settings-btn" class="btn btn-icon desktop-only-btn">⚙️ Настройки</button>
+            </div>
+        </header>
 
-    <main class="container">
-        <section id="form-section" class="form-section glass-element">
-            <h2 id="form-title">Новая дисциплина</h2>
-            <form id="tracker-form">
-                <input type="hidden" id="edit-id">
-                
-                <div class="form-group">
-                    <label for="subject-name">Название предмета</label>
-                    <input type="text" id="subject-name" placeholder="Например: Архитектура ЭВМ" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="subject-type">Вид дисциплины</label>
-                    <select id="subject-type">
-                        <option value="Лабораторные работы">🔬 Лабораторные работы</option>
-                        <option value="Практические занятия">📝 Практические занятия</option>
-                        <option value="Курсовой проект">📐 Курсовой проект</option>
-                        <option value="Лекции">📚 Лекции</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="has-target-checkbox" checked>
-                        Указать цель (количество работ)
-                    </label>
-                </div>
-
-                <div class="form-row" id="target-inputs-row">
+        <!-- Основной контент -->
+        <main>
+            <!-- Блок формы создания/редактирования дисциплины (для ПК) -->
+            <section id="form-section" class="form-section glass-element">
+                <h2 id="form-title" style="margin-bottom: 20px; font-size: 18px; font-weight: 800;">Новая дисциплина</h2>
+                <form id="tracker-form">
+                    <input type="hidden" id="edit-id">
+                    
                     <div class="form-group">
-                        <label for="total-tasks">Цель (макс. 25)</label>
-                        <input type="number" id="total-tasks" min="1" max="25" value="10">
+                        <label for="subject-name">Название</label>
+                        <input type="text" id="subject-name" required placeholder="Например: Высшая математика">
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="done-tasks">Выполнено сейчас</label>
-                    <input type="number" id="done-tasks" min="0" max="25" value="0" required>
-                </div>
 
-                <div class="form-group">
-                    <label for="deadline-date">Дедлайн (дата и время)</label>
-                    <input type="datetime-local" id="deadline-date">
+                    <div class="form-group">
+                        <label for="subject-type">Тип работы</label>
+                        <select id="subject-type">
+                            <option value="Лекции">Лекции</option>
+                            <option value="Практика">Практика</option>
+                            <option value="Лабораторная">Лабораторная</option>
+                            <option value="Семинар">Семинар</option>
+                            <option value="Курсовая">Курсовая</option>
+                            <option value="Проект">Проект</option>
+                        </select>
+                    </div>
+
+                    <!-- Переключатель цели -->
+                    <div class="form-group" style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <input type="checkbox" id="has-target-checkbox" checked style="cursor: pointer;">
+                        <label for="has-target-checkbox" style="margin: 0; cursor: pointer; display: inline;">Есть общее количество работ</label>
+                    </div>
+
+                    <div id="target-inputs-row">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="total-tasks">Всего работ (макс. 25)</label>
+                                <input type="number" id="total-tasks" min="1" max="25" placeholder="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="done-tasks">Уже выполнено</label>
+                                <input type="number" id="done-tasks" min="0" max="25" value="0" placeholder="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deadline-date">Дедлайн</label>
+                        <input type="datetime-local" id="deadline-date">
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" id="submit-btn" class="btn btn-success" style="flex: 1;">Сохранить</button>
+                        <button type="button" id="cancel-btn" class="btn btn-secondary hidden">Отмена</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Сетка карточек дисциплин -->
+            <section class="display-section">
+                <div id="subjects-list" class="grid">
+                    <!-- Карточки будут динамически добавляться через JS -->
                 </div>
+            </section>
+        </main>
+    </div>
 
-                <div class="form-buttons">
-                    <button type="submit" id="submit-btn" class="btn btn-success">Сохранить</button>
-                    <button type="button" id="cancel-btn" class="btn btn-secondary hidden">Отмена</button>
-                </div>
-            </form>
-        </section>
+    <!-- Мобильное нижнее меню (Dock-бар) -->
+    <nav class="mobile-dock glass-element">
+        <button id="dock-home-btn" class="dock-item active">Список</button>
+        <button id="dock-add-btn" class="dock-plus">+</button>
+        <button id="dock-settings-btn" class="dock-item">Настройки</button>
+    </nav>
 
-        <section class="list-section">
-            <div id="subjects-list" class="grid"></div>
-        </section>
-    </main>
-
+    <!-- Мобильное модальное окно для создания/редактирования дисциплины -->
     <div id="modal-form-overlay" class="modal-overlay hidden">
         <div class="modal-content glass-element">
             <div class="modal-header">
-                <h3 id="modal-form-title">Новая дисциплина</h3>
+                <h3 id="modal-form-title" style="font-size: 18px; font-weight: 800;">Новая дисциплина</h3>
                 <button id="close-modal-btn" class="btn-close">&times;</button>
             </div>
+            <!-- Сюда динамически переносится форма для мобильных -->
             <div id="modal-form-container"></div>
         </div>
     </div>
 
-    <div class="mobile-dock glass-element">
-        <button id="dock-home-btn" class="dock-item active">📋 Список</button>
-        <button id="dock-add-btn" class="dock-item dock-plus">➕</button>
-        <button id="dock-settings-btn" class="dock-item">⚙️ Настройки</button>
-    </div>
-
+    <!-- Боковая панель настроек -->
     <div id="settings-sidebar" class="sidebar hidden">
-        <div class="sidebar-overlay" id="sidebar-close-overlay"></div>
+        <div id="sidebar-close-overlay" class="sidebar-overlay"></div>
         <div class="sidebar-content glass-element">
             <div class="sidebar-header">
-                <h3>Настройки интерфейса</h3>
+                <h2 style="font-size: 18px; font-weight: 800;">Настройки</h2>
                 <button id="close-settings-btn" class="btn-close">&times;</button>
             </div>
 
+            <!-- Вкладки настроек -->
             <div class="settings-tabs">
-                <button class="tab-btn active" data-tab="tab-counters">📊 Отображение</button>
-                <button class="tab-btn" data-tab="tab-theme">🎨 Тема страницы</button>
+                <button class="tab-btn active" data-tab="tab-view">Вид</button>
+                <button class="tab-btn" data-tab="tab-theme">Тема</button>
+                <button class="tab-btn" data-tab="tab-feedback">Идея / Отзыв</button>
             </div>
 
-            <div id="tab-counters" class="tab-content active">
+            <!-- Вкладка: Вид -->
+            <div id="tab-view" class="tab-content active">
                 <div class="setting-item">
-                    <label for="view-style-select">Стиль отображения прогресса:</label>
+                    <label for="view-style-select">Стиль отображения прогресса</label>
                     <select id="view-style-select">
-                        <option value="counter">Цифровой счетчик [10 из 15]</option>
-                        <option value="cubes">Интерактивные кубики (кликом)</option>
-                        <option value="progress-ring">Круговой прогресс-бар</option>
+                        <option value="cubes">Кубики-ячейки</option>
+                        <option value="counter">Простой счетчик</option>
+                        <option value="progress-ring">Круговой прогресс</option>
                     </select>
                 </div>
-
                 <div class="setting-item">
-                    <label for="font-family-select">Основной шрифт:</label>
+                    <label for="font-family-select">Шрифт</label>
                     <select id="font-family-select">
-                        <option value="Montserrat">Montserrat (Современный жирный)</option>
-                        <option value="SF Pro Display">SF Pro / System (Apple Style)</option>
-                        <option value="Trebuchet MS">Trebuchet MS (Яркий и четкий)</option>
-                        <option value="Impact">Impact (Ультра-жирный)</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="SF Pro Display">SF Pro Display</option>
+                        <option value="Trebuchet MS">Trebuchet MS</option>
+                        <option value="Impact">Impact</option>
                     </select>
                 </div>
-
-                <hr style="border: 0; border-top: 1px solid var(--border-rgba); margin: 20px 0;">
-
                 <div class="setting-item">
-                    <label>
-                        <input type="checkbox" id="show-deadlines-checkbox" checked>
-                        Отображать дедлайны
-                    </label>
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <input type="checkbox" id="show-deadlines-checkbox" checked style="cursor: pointer;">
+                        <label for="show-deadlines-checkbox" style="margin: 0; cursor: pointer;">Отображать дедлайны</label>
+                    </div>
                 </div>
-
                 <div class="setting-item">
-                    <label for="deadline-format-select">Формат отображения дедлайна:</label>
+                    <label for="deadline-format-select">Формат таймера дедлайна</label>
                     <select id="deadline-format-select">
-                        <option value="dms">Точный отсчёт (Дни, часы, мин, сек)</option>
-                        <option value="dm">Стандартный (Дни, часы, мин)</option>
-                        <option value="d">Краткий (Только дни)</option>
+                        <option value="dms">Дни, часы, минуты, секунды</option>
+                        <option value="dm">Дни, часы, минуты</option>
+                        <option value="d">Только дни</option>
                     </select>
-                </div>
-
-                <hr style="border: 0; border-top: 1px solid var(--border-rgba); margin: 20px 0;">
-
-                <div class="setting-item">
-                    <button id="clear-all-btn" class="btn btn-accent-danger" style="width: 100%;">🗑️ Очистить все данные</button>
                 </div>
             </div>
 
+            <!-- Вкладка: Тема -->
             <div id="tab-theme" class="tab-content">
                 <div class="setting-item">
-                    <label for="theme-preset">Готовые палитры:</label>
+                    <label for="theme-preset">Готовые стили оформления</label>
                     <select id="theme-preset">
-                        <option value="custom">Своя настройка</option>
-                        <option value="blue-neon">Синий Неон (Deep Blue)</option>
-                        <option value="cyber-cyan">Кибер Бирюза (Cyan Glow)</option>
-                        <option value="purple-neon">Неоновый Ультрафиолет (Purple Neon)</option>
-                        <option value="burgundy">Темный Бургунди (Deep Burgundy)</option>
-                        <option value="graphite">Темный Графит (Space Gray)</option>
-                        <option value="dark-gray">Глубокий темно-серый (Dark Classic)</option>
-                        <option value="matte-gray">Светло-серый матовый (Matte Gray)</option>
-                        <option value="pitch-black">Абсолютно черный (Pitch Black)</option>
-                        <option value="light-silver">Светлое Серебро (Silver Light)</option>
-                        <option value="starlight">Сияющая Звезда (Starlight)</option>
-                        <option value="alpine-green">Альпийский Светлый (Alpine Light)</option>
+                        <option value="custom">Пользовательская (Своя)</option>
+                        <option value="blue-neon">Синий неон</option>
+                        <option value="cyber-cyan">Кибер-циан</option>
+                        <option value="purple-neon">Пурпурный неон</option>
+                        <option value="burgundy">Бордовый</option>
+                        <option value="graphite" selected>Графит (По умолчанию)</option>
+                        <option value="dark-gray">Темно-серый</option>
+                        <option value="matte-gray">Матовый серый</option>
+                        <option value="pitch-black">Глубокий черный</option>
+                        <option value="light-silver">Светлое серебро</option>
+                        <option value="starlight">Звездный свет</option>
+                        <option value="alpine-green">Альпийский зеленый</option>
                     </select>
                 </div>
-
                 <div class="setting-item">
-                    <label for="theme-bg">Фон страницы:</label>
-                    <input type="color" id="theme-bg" value="#121214">
+                    <label for="theme-bg">Цвет фона страницы</label>
+                    <input type="color" id="theme-bg" value="#121214" style="width: 100%; height: 40px; border: 1px solid var(--border-rgba); border-radius: 8px; background: none; cursor: pointer;">
                 </div>
-
                 <div class="setting-item">
-                    <label for="theme-text-color">Цвет шрифта текста:</label>
-                    <input type="color" id="theme-text-color" value="#ffffff">
+                    <label for="theme-text-color">Цвет текста и акцентов</label>
+                    <input type="color" id="theme-text-color" value="#ffffff" style="width: 100%; height: 40px; border: 1px solid var(--border-rgba); border-radius: 8px; background: none; cursor: pointer;">
                 </div>
-
                 <div class="setting-item">
-                    <label for="theme-blur">Размытие Liquid Glass (Blur):</label>
+                    <label for="theme-blur">Размытие стекла (Blur): <span id="blur-val">16px</span></label>
                     <div class="range-container">
-                        <input type="range" id="theme-blur" min="0" max="30" value="16">
-                        <span id="blur-val">16px</span>
+                        <input type="range" id="theme-blur" min="0" max="30" value="16" style="width: 100%;">
                     </div>
                 </div>
-
                 <div class="setting-item">
-                    <label for="theme-border-opacity">Прозрачность границ:</label>
+                    <label for="theme-border-opacity">Прозрачность границ: <span id="border-val">15%</span></label>
                     <div class="range-container">
-                        <input type="range" id="theme-border-opacity" min="5" max="50" value="15">
-                        <span id="border-val">15%</span>
+                        <input type="range" id="theme-border-opacity" min="0" max="100" value="15" style="width: 100%;">
                     </div>
                 </div>
+                <div class="setting-item" style="margin-top: 15px;">
+                    <button id="reset-theme-btn" class="btn btn-secondary" style="width: 100%;">Сбросить тему</button>
+                </div>
+            </div>
 
-                <button id="reset-theme-btn" class="btn btn-secondary" style="width:100%; margin-top:15px;">Сбросить тему</button>
+            <!-- Вкладка: Идея / Отзыв -->
+            <div id="tab-feedback" class="tab-content">
+                <div class="setting-item">
+                    <label for="feedback-text">Предложить идею или сообщить об ошибке</label>
+                    <textarea id="feedback-text" rows="5" placeholder="Опишите вашу идею или то, что можно улучшить..." style="width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--border-rgba); border-radius: 10px; color: var(--text-color); font-size: 14px; font-family: var(--main-font); outline: none; resize: none;"></textarea>
+                    <div class="setting-hint" style="margin-top: 8px;">
+                        Сообщение будет отправлено разработчику напрямую через Telegram.
+                    </div>
+                </div>
+                <button id="send-feedback-btn" class="btn btn-success" style="width: 100%; margin-top: 10px;">
+                    🚀 Отправить разработчику
+                </button>
+            </div>
+
+            <!-- Общие кнопки внизу настроек -->
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-rgba);">
+                <button id="clear-all-btn" class="btn btn-accent-danger" style="width: 100%;">Удалить все данные</button>
             </div>
         </div>
     </div>
